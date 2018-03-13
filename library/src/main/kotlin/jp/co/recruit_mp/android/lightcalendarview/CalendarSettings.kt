@@ -100,7 +100,8 @@ class CalendarSettings(private val context: Context) : ObservableSettings() {
 
         internal fun setTextFilterColor(weekDay: WeekDay, color: Int?) {
             textFilterColorMap[weekDay] = color
-            defaultTextPaints[weekDay]?.colorFilter(textFilterColorMap[weekDay]?.let { color -> PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP) } ?: throw IllegalStateException("WeekDay color map for $weekDay not found."))
+            defaultTextPaints[weekDay]?.colorFilter(textFilterColorMap[weekDay]?.let { oldColor -> PorterDuffColorFilter(oldColor, PorterDuff.Mode.SRC_ATOP) }
+                    ?: throw IllegalStateException("WeekDay color map for $weekDay not found."))
         }
     }
 
@@ -229,7 +230,8 @@ class CalendarSettings(private val context: Context) : ObservableSettings() {
 
         internal fun setTextFilterColor(weekDay: WeekDay, color: Int?) {
             textFilterColorMap[weekDay] = color
-            defaultTextPaints[weekDay]?.colorFilter(textFilterColorMap[weekDay]?.let { color -> PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP) } ?: throw IllegalStateException("Day color map for $weekDay not found."))
+            defaultTextPaints[weekDay]?.colorFilter(textFilterColorMap[weekDay]?.let { oldColor -> PorterDuffColorFilter(oldColor, PorterDuff.Mode.SRC_ATOP) }
+                    ?: throw IllegalStateException("Day color map for $weekDay not found."))
         }
 
         internal fun setAccentColorStateList(colorStateList: ColorStateList) {

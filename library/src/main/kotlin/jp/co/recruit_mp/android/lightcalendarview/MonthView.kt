@@ -61,9 +61,8 @@ class MonthView(context: Context, settings: CalendarSettings, var month: Date) :
 
     // 祝日追加
     fun setHolidays(map: Collection<Date>) {
-        map.forEach { it ->
-            val date = it
-            dayLayout.getDayView(date)?.setHoliday();
+        map.forEach { date ->
+            dayLayout.getDayView(date)?.setHoliday()
         }
     }
 

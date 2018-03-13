@@ -25,13 +25,12 @@ import java.util.*
  */
 class WeekDayLayout(context: Context, settings: CalendarSettings) : CellLayout(context, settings) {
     companion object {
-        val DEFAULT_DAYS_IN_WEEK = 7
+        const val DEFAULT_DAYS_IN_WEEK = 7
     }
 
-    override val rowNum: Int
-        get() = 1
-    override val colNum: Int
-        get() = DEFAULT_DAYS_IN_WEEK
+    override val rowNum: Int = 1
+
+    override val colNum: Int = DEFAULT_DAYS_IN_WEEK
 
     var dayOfWeekOffset: Int = -1
 

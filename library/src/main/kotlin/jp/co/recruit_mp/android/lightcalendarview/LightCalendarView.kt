@@ -56,12 +56,12 @@ class LightCalendarView(context: Context, attrs: AttributeSet? = null, defStyleA
     var monthFrom: Date = CalendarKt.getInstance(settings).apply { set(Date().getFiscalYear(settings), Calendar.APRIL, 1) }.time
         set(value) {
             field = value
-            adapter.notifyDataSetChanged()
+            adapter?.notifyDataSetChanged()
         }
     var monthTo: Date = CalendarKt.getInstance(settings).apply { set(monthFrom.getFiscalYear(settings) + 1, Calendar.MARCH, 1) }.time
         set(value) {
             field = value
-            adapter.notifyDataSetChanged()
+            adapter?.notifyDataSetChanged()
         }
 
     constructor(context: Context) : this(context, null)
@@ -70,7 +70,7 @@ class LightCalendarView(context: Context, attrs: AttributeSet? = null, defStyleA
 
     init {
         val a = context.obtainStyledAttributes(attrs, R.styleable.LightCalendarView, defStyleAttr, defStyleRes)
-        (0..a.indexCount - 1).forEach { i ->
+        (0 until a.indexCount).forEach { i ->
             val attr = a.getIndex(i)
             when (attr) {
                 R.styleable.LightCalendarView_lcv_weekDayTextSize -> setWeekDayRawTextSize(a.getDimension(attr, 0f))
@@ -92,29 +92,30 @@ class LightCalendarView(context: Context, attrs: AttributeSet? = null, defStyleA
         currentItem = getPositionForDate(Date())
     }
 
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        var heightMeasureSpec = heightMeasureSpec
+        var newHeightMeasureSpec = heightMeasureSpec
 
         // 高さの WRAP_CONTENT を有効にする
-        val (specHeightSize, specHeightMode) = Measure.createFromSpec(heightMeasureSpec)
+        val (specHeightSize, specHeightMode) = Measure.createFromSpec(newHeightMeasureSpec)
         if (specHeightMode == MeasureSpec.AT_MOST || specHeightMode == MeasureSpec.UNSPECIFIED) {
             val height = childList.map {
                 it.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(specHeightSize, specHeightMode))
                 it.measuredHeight
             }.fold(0, { h1, h2 -> Math.max(h1, h2) })
-            heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+            newHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
         }
 
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        super.onMeasure(widthMeasureSpec, newHeightMeasureSpec)
     }
 
     /**
      * {@link ViewPager} のページに対応する月を返す
      */
     fun getDateForPosition(position: Int): Date {
-        when (calendarViewType) {
-            ViewType.MONTH -> return monthFrom.add(settings, Calendar.MONTH, position)
-            ViewType.WEEK -> return monthFrom.add(settings, Calendar.HOUR, position*7*24)
+        return when (calendarViewType) {
+            ViewType.MONTH -> monthFrom.add(settings, Calendar.MONTH, position)
+            ViewType.WEEK -> monthFrom.add(settings, Calendar.HOUR, position * 7 * 24)
         }
     }
 
@@ -122,9 +123,9 @@ class LightCalendarView(context: Context, attrs: AttributeSet? = null, defStyleA
      * 月に対応する {@link ViewPager} のページを返す
      */
     fun getPositionForDate(date: Date): Int {
-        when (calendarViewType) {
-            ViewType.MONTH -> return date.monthsAfter(settings, monthFrom).toInt()
-            ViewType.WEEK -> return date.weeksAfter(settings, monthFrom).toInt()
+        return when (calendarViewType) {
+            ViewType.MONTH -> date.monthsAfter(settings, monthFrom).toInt()
+            ViewType.WEEK -> date.weeksAfter(settings, monthFrom).toInt()
         }
     }
 
@@ -311,12 +312,13 @@ class LightCalendarView(context: Context, attrs: AttributeSet? = null, defStyleA
         }
 
     private inner class Adapter : PagerAdapter() {
-        override fun instantiateItem(container: ViewGroup?, position: Int): View {
+
+        override fun instantiateItem(container: ViewGroup, position: Int): View {
             val view = MonthView(context, settings, getDateForPosition(position)).apply {
                 tag = context.getString(R.string.month_view_tag_name, position)
                 onDateSelected = { date -> this@LightCalendarView.onDateSelected?.invoke(date) }
             }
-            container?.addView(view, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            container.addView(view, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
             if (position == selectedPage) {
                 onMonthSelected?.invoke(getDateForPosition(position), view)
@@ -325,16 +327,17 @@ class LightCalendarView(context: Context, attrs: AttributeSet? = null, defStyleA
             return view
         }
 
-        override fun destroyItem(container: ViewGroup?, position: Int, view: Any?) {
-            (view as? View)?.let { container?.removeView(it) }
+        override fun destroyItem(container: ViewGroup, position: Int, view: Any) {
+            (view as? View)?.let { container.removeView(it) }
         }
 
-        override fun isViewFromObject(view: View?, obj: Any?): Boolean = view === obj
+
+        override fun isViewFromObject(view: View, `object`: Any): Boolean = view === `object`
 
         override fun getCount(): Int {
-            when (calendarViewType) {
-                ViewType.MONTH ->  return Math.max(0, monthTo.monthsAfter(settings, monthFrom).toInt() + 1)
-                ViewType.WEEK ->  return Math.max(0, monthTo.weeksAfter(settings, monthFrom).toInt() + 1)
+            return when (calendarViewType) {
+                ViewType.MONTH -> Math.max(0, monthTo.monthsAfter(settings, monthFrom).toInt() + 1)
+                ViewType.WEEK -> Math.max(0, monthTo.weeksAfter(settings, monthFrom).toInt() + 1)
             }
         }
     }

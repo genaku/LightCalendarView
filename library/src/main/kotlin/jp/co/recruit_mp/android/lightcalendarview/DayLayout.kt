@@ -28,21 +28,21 @@ import java.util.*
 class DayLayout(context: Context, settings: CalendarSettings, var month: Date) : CellLayout(context, settings) {
 
     companion object {
-        val DEFAULT_WEEKS = 6
+        const val DEFAULT_WEEKS = 6
         val DEFAULT_DAYS_IN_WEEK = WeekDay.values().size
     }
 
     override val rowNum: Int
         get() {
-            when (settings.calendarViewType) {
-                ViewType.MONTH -> return DEFAULT_WEEKS
-                ViewType.WEEK -> return 1
+            return when (settings.calendarViewType) {
+                ViewType.MONTH -> DEFAULT_WEEKS
+                ViewType.WEEK -> 1
             }
         }
     override val colNum: Int
         get() = DEFAULT_DAYS_IN_WEEK
 
-    internal var selectedDayView: DayView? = null
+    private var selectedDayView: DayView? = null
 
     internal var onDateSelected: ((date: Date) -> Unit)? = null
     private var firstDate: Calendar = CalendarKt.getInstance(settings)
@@ -86,9 +86,7 @@ class DayLayout(context: Context, settings: CalendarSettings, var month: Date) :
             // calculate the date of top-left cell
             val cal: Calendar = CalendarKt.getInstance(settings).apply {
                 time = month
-                when (settings.calendarViewType) {
-                    ViewType.MONTH -> set(Calendar.DAY_OF_MONTH, 1)
-                }
+                if (settings.calendarViewType == ViewType.MONTH) set(Calendar.DAY_OF_MONTH, 1)
                 add(Calendar.DAY_OF_YEAR, (-this[Calendar.DAY_OF_WEEK] + dayOfWeekOffset + 1).let { offset ->
                     if (offset > 0) (offset - WeekDay.values().size) else offset
                 })
@@ -107,8 +105,8 @@ class DayLayout(context: Context, settings: CalendarSettings, var month: Date) :
         val cal = firstDate.clone() as Calendar
 
         // 7 x 6 マスの DayView を追加する
-        (0..rowNum - 1).forEach {
-            (0..colNum - 1).forEach {
+        (0 until rowNum).forEach {
+            (0 until colNum).forEach {
                 when (cal[Calendar.MONTH]) {
                     thisMonth -> {
                         addView(instantiateDayView(cal.clone() as Calendar))
